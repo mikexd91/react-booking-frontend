@@ -1,0 +1,3 @@
+input[class*="react-timerange-picker__inputGroup__input react-timerange-picker__inputGroup__hour"]{
+    width: 30px !important
+}
