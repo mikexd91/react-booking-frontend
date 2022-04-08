@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { LockClosedIcon } from "@heroicons/react/solid";
+import { LockClosedIcon, XIcon } from "@heroicons/react/solid";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../components/AuthProvider";
 import OverlaySpinner from "../components/OverlaySpinner";
@@ -14,6 +14,7 @@ export default function Login() {
   const [organisations, setOrganisation] = useState([]);
   const [selectedOrganisation, setSelectOrganisation] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [signUpError, setSignupErrorMessage] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -23,19 +24,39 @@ export default function Login() {
   const from = location.state?.from?.pathname || "/room";
 
   const handleLogin = async () => {
-    const error = await auth.signin({ username, password });
-    if (!error) navigate(from, { replace: true });
-    else console.log(error, "error from signin");
+    setLoading(true);
+    const result = await auth.signin({ username, password });
+    if (result.accessToken) {
+      navigate(from, { replace: true });
+    } else {
+      if (result.statusCode === 400) {
+        setSignupErrorMessage(result.message);
+      } else {
+        setErrorMessage(result.message);
+      }
+    }
+    setLoading(false);
   };
 
   const handleSignup = async () => {
-    const error = await auth.signup({
+    setLoading(true);
+    const result = await auth.signup({
       username,
       password,
       organisation: selectedOrganisation,
     });
-    if (!error) navigate("/", { replace: true });
-    else console.log(error, "error from signup");
+    if (!result) {
+      setIsLogin(true);
+      setSignupErrorMessage([]);
+      setErrorMessage("");
+    } else {
+      if (result.statusCode === 400) {
+        setSignupErrorMessage(result.message);
+      } else {
+        setErrorMessage(result.message);
+      }
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -66,14 +87,9 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLogin) {
-      setLoading(true);
       await handleLogin();
-      setLoading(false);
     } else {
-      setLoading(true);
       await handleSignup();
-      setLoading(false);
-      setIsLogin(true);
     }
   };
 
@@ -98,7 +114,11 @@ export default function Login() {
               Or{" "}
               <a
                 href="#"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setErrorMessage("");
+                  setSignupErrorMessage([]);
+                }}
                 className="font-medium text-indigo-600 hover:text-indigo-500"
               >
                 {!isLogin
@@ -152,7 +172,19 @@ export default function Login() {
                 ></OrganisationGallery>
               )}
             </div>
-            {errorMessage}
+            {errorMessage && (
+              <div className="flex flex-row">
+                <XIcon className="h-5 w-5 text-red-500 group-hover:text-red-400"></XIcon>
+                <div className="px-2">{errorMessage}</div>
+              </div>
+            )}
+            {signUpError.map((item) => (
+              <div key={item} className="flex flex-row">
+                <XIcon className="h-5 w-5 text-red-500 group-hover:text-red-400"></XIcon>
+                <div className="px-2">{item}</div>
+              </div>
+            ))}
+
             <div>
               <button
                 type="submit"

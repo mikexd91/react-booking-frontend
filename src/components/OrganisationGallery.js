@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CheckIcon } from "@heroicons/react/solid";
 export default function OrganisationGallery({ products, onSelectProduct }) {
-  const [isColaSelected, setColaSelected] = useState(true);
+  const [isColaSelected, setColaSelected] = useState(null);
   const handleSelect = (product) => {
     product.name === "Pepsi" ? setColaSelected(false) : setColaSelected(true);
     onSelectProduct(product);
@@ -35,12 +35,16 @@ export default function OrganisationGallery({ products, onSelectProduct }) {
 
                   <p className="mt-1 text-sm text-gray-500">{product.type}</p>
                 </div>
-                {product.name === "Coca Cola" && isColaSelected && (
-                  <CheckIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" />
-                )}
-                {product.name === "Pepsi" && !isColaSelected && (
-                  <CheckIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" />
-                )}
+                {product.name === "Coca Cola" &&
+                  isColaSelected &&
+                  isColaSelected !== null && (
+                    <CheckIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" />
+                  )}
+                {product.name === "Pepsi" &&
+                  !isColaSelected &&
+                  isColaSelected !== null && (
+                    <CheckIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" />
+                  )}
                 <p
                   className={`text-sm font-medium ${
                     product.status === "Available"

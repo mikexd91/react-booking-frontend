@@ -53,10 +53,10 @@ function AuthProvider({ children }) {
       });
       localStorage.setItem("access_token", data.accessToken);
       setAuthentication(data.accessToken);
+      return data;
     } else {
-      if (response.status == 401) {
-        localStorage.removeItem("access_token");
-      }
+      const data = await response.json();
+      return data;
     }
   };
 
@@ -70,10 +70,9 @@ function AuthProvider({ children }) {
     });
 
     if (!response.ok) {
-      if (response.status == 401) {
-        setAuthentication(false);
-        localStorage.removeItem("access_token");
-      }
+      setAuthentication(false);
+      const data = await response.json();
+      return data;
     }
   };
 
