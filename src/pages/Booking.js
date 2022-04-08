@@ -26,8 +26,6 @@ const Booking = () => {
   const [timeRange, setTimeRange] = useState(["10:00", "11:00"]);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  // const [showModalData, setShowModalData] = useState(null);
-  // const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -48,7 +46,6 @@ const Booking = () => {
       }
 
       const data = await response.json();
-      console.log(data, "data");
 
       setRoomData(customDataFormat(data));
     };
@@ -82,18 +79,19 @@ const Booking = () => {
 
       let bookedTime = [];
       for (let i = 0; i < data.length; i++) {
-        bookedTime.push({
-          id: data[i].id,
-          color: randomColor(),
-          from: data[i].startTime,
-          to: data[i].endTime,
-          title: data[i].room?.name,
-        });
+        if (data[i].status === "Booked") {
+          bookedTime.push({
+            id: data[i].id,
+            color: randomColor(),
+            from: data[i].startTime,
+            to: data[i].endTime,
+            title: data[i].room?.name,
+          });
+        }
       }
 
       setRoomBookingData(bookedTime);
       setLoading(false);
-      console.log(bookedTime);
     }
   };
 
@@ -159,21 +157,13 @@ const Booking = () => {
     const end = value[1] && parseInt(value[1].substr(0, 1));
     if (start >= end) {
       setErrorMessage("Start time cannot be later than end time");
-      console.log("Start time cannot be later than end time");
     }
     setErrorMessage("");
     setTimeRange(value);
   };
 
-  // const handleCloseModal = () => {
-  //   console.log("closed");
-  //   setShowModalData(null);
-  //   setIsVisible(false);
-  // };
-
   return (
     <div className="bg-white">
-      {/* <Modal visible={isVisible} handleClose={handleCloseModal}></Modal> */}
       <OverlaySpinner isLoading={loading}></OverlaySpinner>
       <div className="pt-6">
         <nav aria-label="Breadcrumb">
@@ -240,15 +230,7 @@ const Booking = () => {
                 Book
               </button>
             </form>
-            <div>
-              <Div>{errorMessage && "Error: " + errorMessage}</Div>
-              <Div>
-                <h2>Time Slot Booked</h2>
-              </Div>
-              {/* <Container>
-                <Calendar handleClickEvent={null} events={roomBookingData} />
-              </Container> */}
-            </div>
+            <Div>{errorMessage && "Error: " + errorMessage}</Div>
           </div>
 
           <div className="py-10 lg:pt-6 lg:pb-16 lg:col-start-1 lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
@@ -263,22 +245,6 @@ const Booking = () => {
               </div>
             </div>
             <Calendar handleClickEvent={null} events={roomBookingData} />
-            {/* <div className="mt-10">
-              <h3 className="text-sm font-medium text-gray-900">
-                Room Capacity
-              </h3>
-
-              <div className="mt-4">
-                <ul role="list" className="pl-4 list-disc text-sm space-y-2">
-                  {roomData.occupancy &&
-                    roomData.occupancy.map((occupancy) => (
-                      <li key={occupancy} className="text-gray-400">
-                        <span className="text-gray-600">{occupancy}</span>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            </div> */}
           </div>
         </div>
       </div>

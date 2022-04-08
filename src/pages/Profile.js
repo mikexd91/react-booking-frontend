@@ -1,24 +1,17 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../components/AuthProvider";
-import { useNavigate } from "react-router-dom";
 import randomColor from "randomcolor";
+import { Modal } from "antd";
 import Calendar from "../components/Calendar";
 import OverlaySpinner from "../components/OverlaySpinner";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 const { REACT_APP_URL } = process.env;
 
 export default function Profile() {
-  const auth = useAuth();
-  const navigate = useNavigate();
+  const { confirm } = Modal;
   const [bookings, setBookings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const handleLogout = () => {
-    const error = auth.signout();
-    if (!error) navigate("/", { replace: true });
-    else console.log(error, "error from signin");
-  };
 
   useEffect(() => {
     fetchBookings();
@@ -41,7 +34,6 @@ export default function Profile() {
       }
     } else {
       const data = await response.json();
-      console.log(data, "data123");
       let bookedTime = [];
       for (let i = 0; i < data.length; i++) {
         if (data[i].status === "Booked") {
@@ -87,16 +79,29 @@ export default function Profile() {
     }
   };
 
+  const showPromiseConfirm = (id) => {
+    confirm({
+      title: "Do you want to delete these items?",
+      icon: <ExclamationCircleOutlined />,
+      onOk() {
+        return new Promise((resolve) => {
+          cancelBooking(id).then(() => {
+            resolve();
+          });
+        }).catch(() => console.log("Oops errors!"));
+      },
+      onCancel() {},
+    });
+  };
+
   return (
     <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full">
         <h2 className="text-xl font-extrabold tracking-tight text-gray-900">
           My Bookings
         </h2>
-        <h2>Profile</h2>
         <OverlaySpinner isLoading={loading}></OverlaySpinner>
-        <Calendar handleClickEvent={cancelBooking} events={bookings} />
-        <button onClick={handleLogout}> logout</button>
+        <Calendar handleClickEvent={showPromiseConfirm} events={bookings} />
         {errorMessage}
       </div>
     </div>

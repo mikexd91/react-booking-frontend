@@ -65,7 +65,6 @@ function LoginPage() {
   let from = location.state?.from?.pathname || "/room";
   const handleLogin = async (body) => {
     const error = await auth.signin(body);
-    console.log("789", error);
     if (!error) navigate(from, { replace: true });
     else console.log(error);
   };

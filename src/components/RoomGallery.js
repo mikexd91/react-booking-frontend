@@ -1,6 +1,5 @@
 export default function RoomGallery({ products, onSelectProduct, isBooking }) {
   const handleSelect = (product) => {
-    console.log(product, "123");
     onSelectProduct(product);
   };
 

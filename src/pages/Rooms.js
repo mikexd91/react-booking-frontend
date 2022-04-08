@@ -9,7 +9,6 @@ const Home = () => {
   const navigate = useNavigate();
   const [roomsData, setRoomsData] = useState(null);
   const [loading, setLoading] = useState(false);
-  // const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -23,15 +22,11 @@ const Home = () => {
       });
 
       if (!response.ok) {
-        // setErrorMessage(response.message);
-        console.log(response.status);
         if (response.status == 401) {
           localStorage.removeItem("access_token");
         }
       } else {
         const data = await response.json();
-        console.log(data, "data");
-
         setRoomsData(data);
       }
       setLoading(false);

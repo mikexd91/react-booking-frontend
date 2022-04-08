@@ -1,17 +1,15 @@
-export default function RoomGallery(props) {
-  const { products } = props;
-
+import { useState } from "react";
+import { CheckIcon } from "@heroicons/react/solid";
+export default function OrganisationGallery({ products, onSelectProduct }) {
+  const [isColaSelected, setColaSelected] = useState(true);
   const handleSelect = (product) => {
-    props.onSelectProduct(product);
+    product.name === "Pepsi" ? setColaSelected(false) : setColaSelected(true);
+    onSelectProduct(product);
   };
 
   return (
     <div className="bg-white">
       <div className="max-w-2xl mx-auto py-2">
-        {/* <h4 className="text-xl font-extrabold tracking-tight text-gray-900">
-            Select you
-          </h4> */}
-
         <div className="mt-6 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-2 xl:gap-x-8">
           {products.map((product) => (
             <div
@@ -19,7 +17,7 @@ export default function RoomGallery(props) {
               className="group relative pointer-events: auto;"
               onClick={() => handleSelect(product)}
             >
-              <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-50 lg:aspect-none">
+              <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 group-focus:opacity-75 lg:h-50 lg:aspect-none">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -34,8 +32,15 @@ export default function RoomGallery(props) {
                       {product.name}
                     </a>
                   </h3>
+
                   <p className="mt-1 text-sm text-gray-500">{product.type}</p>
                 </div>
+                {product.name === "Coca Cola" && isColaSelected && (
+                  <CheckIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" />
+                )}
+                {product.name === "Pepsi" && !isColaSelected && (
+                  <CheckIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" />
+                )}
                 <p
                   className={`text-sm font-medium ${
                     product.status === "Available"

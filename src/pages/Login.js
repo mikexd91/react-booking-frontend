@@ -34,7 +34,7 @@ export default function Login() {
       password,
       organisation: selectedOrganisation,
     });
-    if (!error) navigate(from, { replace: true });
+    if (!error) navigate("/", { replace: true });
     else console.log(error, "error from signup");
   };
 
@@ -67,9 +67,7 @@ export default function Login() {
     e.preventDefault();
     if (isLogin) {
       setLoading(true);
-      console.log("123");
       await handleLogin();
-      console.log("456", loading);
       setLoading(false);
     } else {
       setLoading(true);

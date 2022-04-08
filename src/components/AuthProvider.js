@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 import { Menu } from "@headlessui/react";
 import styled from "styled-components";
 import { useLocation, Navigate, Link } from "react-router-dom";
@@ -22,12 +22,18 @@ function AuthProvider({ children }) {
   const [isAuthenticated, setAuthentication] = useState(
     localStorage.getItem("access_token")
   );
+  const [name, setName] = useState("");
   const [user, setUser] = useState({
     name: "",
     email: "user@gmail.com",
     imageUrl:
       "https://www.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png",
   });
+
+  useEffect(() => {
+    localStorage.getItem("access_token") &&
+      setName(parseJwt(localStorage.getItem("access_token")).username);
+  }, []);
 
   const signin = async (body) => {
     const response = await fetch(`${REACT_APP_URL}/auth/signin`, {
@@ -54,7 +60,7 @@ function AuthProvider({ children }) {
     }
   };
 
-  const signup = async (body, callback) => {
+  const signup = async (body) => {
     const response = await fetch(`${REACT_APP_URL}/auth/signup`, {
       method: "POST",
       headers: {
@@ -63,22 +69,17 @@ function AuthProvider({ children }) {
       body: JSON.stringify(body),
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      localStorage.setItem("access_token", data.accessToken);
-      setAuthentication(data.accessToken);
-      callback();
-    } else {
+    if (!response.ok) {
       if (response.status == 401) {
+        setAuthentication(false);
         localStorage.removeItem("access_token");
       }
     }
-    callback(response);
   };
 
-  const signout = (callback) => {
+  const signout = () => {
     setAuthentication(false);
-    callback();
+    localStorage.removeItem("access_token");
   };
 
   const parseJwt = (token) => {
@@ -133,23 +134,29 @@ function AuthProvider({ children }) {
               </div>
             </div>
             {isAuthenticated && (
-              <Link to="/profile">
-                <div className="hidden md:block">
-                  <div className="ml-4 flex items-center md:ml-6">
-                    {/* Profile */}
+              <div className="hidden md:block">
+                <div className="ml-4 flex items-center md:ml-6">
+                  {/* Profile */}
+                  <Link to="/profile">
                     <Menu as="div" className="ml-3 relative">
-                      <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                      <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none hover:ring-2 hover:ring-offset-2 hover:ring-offset-gray-800 hover:ring-white">
                         <img
                           className="h-8 w-8 rounded-full"
                           src={user.imageUrl}
                           alt=""
                         />
-                        <Span>{user.name}</Span>
+                        <Span>{user.name || name}</Span>
                       </Menu.Button>
                     </Menu>
+                  </Link>
+                  <div
+                    className="max-w-xs flex items-center text-sm hover:text-gray-500 ml-3 relative"
+                    onClick={signout}
+                  >
+                    Logout
                   </div>
                 </div>
-              </Link>
+              </div>
             )}
           </div>
         </div>
